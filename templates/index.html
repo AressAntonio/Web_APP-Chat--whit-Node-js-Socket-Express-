@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatbySocket-Node.js</title>
+    <!--seccion css-->
+    <style>
+        #body{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: column;
+            font-family: monospace;
+            min-width: 400px;
+            height: auto;
+            background-color: rgba(0, 0, 0, 1.7);    
+        }
+        hr{
+            background-color: blueviolet;
+            height: 1px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, .7);
+            z-index: 0;
+        }
+        #mensajes{
+            background-color: aliceblue;
+            color: black;
+            border-color:blueviolet;
+            border-radius: 12px;
+            width: 300px;
+            height: auto;
+            align-self: flex-end;
+            flex-direction: column;
+            list-style: none;
+            font-size: large;
+        }
+        #form{
+            position: fixed;
+            bottom: 0px;
+            padding: 17px 150px;
+            background-color:blueviolet;
+            border-radius: 12px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 1.7);
+        }
+        #input{
+            bottom: 10px;
+            padding: 10px 125px;
+            background-color: rgb(161, 156, 156);
+            border-radius: 12px;
+        }
+        button{
+            padding: 8px 20px;
+            background-color: blue;
+            color: azure;
+            border-radius: 13px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, .7);
+        }
+    </style>
+    <!--seccion css-->
+</head>
+<body id="body">
+    <ul id="mensajes"><hr></ul>
+
+    <form id="form" action="">
+        <input id="input" autocomplete="off" placeholder="Escribe tu mensaje">
+        <button>Enviar</button>
+    </form>
+    
+    <!--seccion JS-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script> 
+        var socket = io();
+
+        let form = document.getElementById('form');
+        let input = document.getElementById('input');
+        let mensages = document.getElementById('mensajes');
+
+        let body = document.getElementById('body');
+
+        body.addEventListener('onload', function(){
+            if (Notification.permission !== 'granted'){
+                Notification.requestPermission()
+            }
+        });
+
+        function mandarNotifi(msg){
+            if (Notification.permission !== 'granted'){
+                Notification.requestPermission()
+            }else{
+                const option = {
+                    body: msg,
+                    dir: 'ltr'
+                };
+                const notification = new Notification('Notification', options);
+                notification.onclick = function(){
+                    window.open("https://www.google.com.mx/?hl=es-419");
+                }
+            }
+        }
+
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            socket.emit('mensaje de chat', input.value);
+            input.value = '';
+        });
+
+        socket.on('mensaje de chat', function(msg){
+            let item = document.createElement('li');
+            item.textContent = msg;
+            mensajes.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+            mandarNotifi(msg);
+        });
+
+    </script>
+    <!--seccion JS-->
+</body>
+</html>
